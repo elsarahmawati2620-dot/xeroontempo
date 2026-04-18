@@ -11,33 +11,66 @@
       font-family: 'Inter', system-ui, sans-serif; 
       background: #0a0a0a;
     }
+
     .hero-bg {
       background: 
-        radial-gradient(circle at center, rgba(255, 45, 0, 0.18) 0%, transparent 70%),
+        radial-gradient(circle at center, rgba(255, 45, 0, 0.15) 0%, transparent 70%),
         linear-gradient(rgba(0,0,0,0.75), rgba(0,0,0,0.92)),
         url('https://files.oaiusercontent.com/file-9jrHB?se=2026-04-19T00%3A00%3A00Z&sp=r&sv=2024-08-04&sr=b&rscc=max-age%3D3628800%2C%20immutable&rscd=attachment%3B%20filename%3Dimage%2520%2851%29.jpg') center/cover no-repeat;
       min-height: 100vh;
       position: relative;
-      transition: transform 0.8s ease;
-    }
-    .hero-bg:hover {
-      transform: scale(1.03);
+      overflow: hidden;
     }
 
-    .social-icon {
-      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-      display: inline-block;
-    }
-    
-    .social-icon:hover {
-      transform: scale(1.3) rotate(12deg);
-      color: #ff2d00;
-      text-shadow: 0 0 20px #ff2d00;
+    /* Panther Animasi */
+    .panther {
+      position: absolute;
+      bottom: 18%;
+      left: 10%;
+      width: 360px;
+      height: 360px;
+      background: url('https://i.imgur.com/2vL9k8P.png') no-repeat center/contain;
+      animation: pantherRun 9s linear infinite;
+      opacity: 0.9;
+      filter: drop-shadow(0 0 35px #ff2d00);
+      z-index: 3;
     }
 
-    .social-icon:active {
-      transform: scale(0.85) rotate(-15deg);
-      transition: all 0.1s;
+    @keyframes pantherRun {
+      0%   { transform: translateX(-50px) scale(1); }
+      50%  { transform: translateX(90px) scale(1.07); }
+      100% { transform: translateX(-50px) scale(1); }
+    }
+
+    .hero-title {
+      animation: glowPulse 3s infinite alternate;
+    }
+
+    @keyframes glowPulse {
+      from { text-shadow: 0 0 20px #ff2d00; }
+      to { text-shadow: 0 0 70px #ff0000, 0 0 100px #ff2d00; }
+    }
+
+    .btn-buy {
+      position: relative;
+      overflow: hidden;
+    }
+    .btn-buy::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 40%;
+      height: 400%;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,0.4), transparent);
+      transform: skewX(-25deg);
+      animation: shine 3.5s infinite;
+    }
+
+    @keyframes shine {
+      0% { transform: translateX(-150%) skewX(-25deg); }
+      20% { transform: translateX(300%) skewX(-25deg); }
+      100% { transform: translateX(300%) skewX(-25deg); }
     }
 
     .accent { color: #ff2d00; }
@@ -53,7 +86,16 @@
     .btn-red:hover {
       background: #ff4d00;
       transform: scale(1.08);
-      box-shadow: 0 0 35px #ff2d00;
+      box-shadow: 0 0 40px #ff2d00;
+    }
+
+    .social-icon {
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .social-icon:hover {
+      transform: scale(1.35) rotate(15deg);
+      color: #ff2d00;
+      text-shadow: 0 0 25px #ff2d00;
     }
   </style>
 </head>
@@ -68,23 +110,28 @@
         <span class="text-3xl font-bold tracking-tighter text-red-400">TEMPO</span>
       </div>
       <div class="flex gap-8 text-sm font-medium">
-        <a href="#about" class="hover:text-red-400">About</a>
-        <a href="#contract" class="hover:text-red-400">Contract</a>
-        <a href="#why" class="hover:text-red-400">Why Tempo</a>
+        <a href="#about" class="hover:text-red-400 transition">About</a>
+        <a href="#contract" class="hover:text-red-400 transition">Contract</a>
+        <a href="#why" class="hover:text-red-400 transition">Why Tempo</a>
       </div>
-      <!-- Buy Button di Navbar -->
       <a href="https://launch.enshrined.exchange/token/0x20c0000000000000000000006E73097A79120aa4" 
          target="_blank" 
-         class="btn-red font-bold px-8 py-3 rounded-full">
+         class="btn-red font-bold px-8 py-3 rounded-full btn-buy">
         Buy $XERO
       </a>
     </div>
   </nav>
 
-  <!-- HERO -->
+  <!-- HERO dengan Panther + Fire Particles -->
   <section class="hero-bg flex items-center pt-20">
-    <div class="max-w-7xl mx-auto px-6 text-center relative z-10">
-      <h1 class="text-6xl md:text-8xl font-black tracking-tighter mb-6 red-glow">
+    <!-- Panther -->
+    <div class="panther"></div>
+
+    <!-- Canvas untuk Partikel Api -->
+    <canvas id="fireCanvas" class="absolute inset-0 pointer-events-none z-10"></canvas>
+
+    <div class="max-w-7xl mx-auto px-6 text-center relative z-20">
+      <h1 class="text-6xl md:text-8xl font-black tracking-tighter mb-6 hero-title red-glow">
         XERO ON TEMPO
       </h1>
       <p class="text-4xl font-bold text-red-400 mb-8">THE BLACK PANTHER HAS LANDED</p>
@@ -92,10 +139,9 @@
         High-speed meme coin powered by Tempo Chain — built for real-world payments at scale.
       </p>
       <div class="flex flex-col sm:flex-row gap-6 justify-center">
-        <!-- Buy Button di Hero -->
         <a href="https://launch.enshrined.exchange/token/0x20c0000000000000000000006E73097A79120aa4" 
            target="_blank" 
-           class="btn-red font-bold text-2xl px-14 py-7 rounded-3xl">
+           class="btn-red font-bold text-2xl px-14 py-7 rounded-3xl btn-buy">
           Buy $XERO Now
         </a>
         <a href="https://tempo.xyz" target="_blank" 
@@ -124,7 +170,7 @@
   <section id="contract" class="py-24 bg-black">
     <div class="max-w-4xl mx-auto px-6 text-center">
       <h2 class="text-5xl font-bold mb-8 accent">Official Contract Address</h2>
-      <div class="bg-zinc-900 p-12 rounded-3xl border border-red-600/40 inline-block">
+      <div class="bg-zinc-900 p-12 rounded-3xl border border-red-600/40 inline-block hover:border-red-500 transition-all duration-300">
         <p class="text-red-400 text-sm mb-4 font-mono tracking-widest">TEMPO CHAIN • $XERO</p>
         <p id="contractAddr" class="font-mono text-2xl md:text-3xl break-all bg-black p-8 rounded-2xl border border-red-900/50 text-red-300 tracking-widest">
           0x20c0000000000000000000006E73097A79120aa4
@@ -145,15 +191,15 @@
     <div class="max-w-6xl mx-auto px-6 text-center">
       <h2 class="text-5xl font-bold mb-12 accent">Why Tempo Chain?</h2>
       <div class="grid md:grid-cols-3 gap-10">
-        <div class="p-10 border border-red-600/30 rounded-3xl hover:border-red-500 transition">
+        <div class="p-10 border border-red-600/30 rounded-3xl hover:border-red-500 transition bg-zinc-900">
           <h3 class="text-3xl font-bold mb-4 accent">Blazing Fast</h3>
           <p class="text-gray-400">100,000+ TPS and sub-second finality. Perfect speed for meme action.</p>
         </div>
-        <div class="p-10 border border-red-600/30 rounded-3xl hover:border-red-500 transition">
+        <div class="p-10 border border-red-600/30 rounded-3xl hover:border-red-500 transition bg-zinc-900">
           <h3 class="text-3xl font-bold mb-4 accent">Stablecoin Native</h3>
           <p class="text-gray-400">Pay gas with pathUSD — smooth and cheap transactions.</p>
         </div>
-        <div class="p-10 border border-red-600/30 rounded-3xl hover:border-red-500 transition">
+        <div class="p-10 border border-red-600/30 rounded-3xl hover:border-red-500 transition bg-zinc-900">
           <h3 class="text-3xl font-bold mb-4 accent">Built for Scale</h3>
           <p class="text-gray-400">Backed by Stripe & Paradigm. Ready for massive adoption.</p>
         </div>
@@ -180,12 +226,83 @@
   </footer>
 
   <script>
+    // === FIRE PARTICLES ANIMATION ===
+    const canvas = document.getElementById('fireCanvas');
+    const ctx = canvas.getContext('2d');
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeCanvas);
+    resizeCanvas();
+
+    let particles = [];
+
+    class Particle {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = canvas.height * 0.75 + Math.random() * 100;
+        this.size = Math.random() * 6 + 3;
+        this.speedX = Math.random() * 2 - 1;
+        this.speedY = Math.random() * -4 - 2;
+        this.life = Math.random() * 60 + 40;
+        this.opacity = 1;
+        this.hue = Math.random() * 30 + 10; // orange-red range
+      }
+
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.speedY -= 0.08; // naik ke atas
+        this.life--;
+        this.opacity = this.life / 80;
+        this.size *= 0.98;
+      }
+
+      draw() {
+        ctx.save();
+        ctx.globalAlpha = this.opacity;
+        ctx.fillStyle = `hsl(${this.hue}, 100%, 65%)`;
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = `hsl(${this.hue}, 100%, 70%)`;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    function animateFire() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Tambah partikel baru
+      if (Math.random() < 0.45) {
+        particles.push(new Particle());
+      }
+
+      for (let i = particles.length - 1; i >= 0; i--) {
+        particles[i].update();
+        particles[i].draw();
+
+        if (particles[i].life <= 0 || particles[i].size <= 0.5) {
+          particles.splice(i, 1);
+        }
+      }
+
+      requestAnimationFrame(animateFire);
+    }
+
+    // Copy Contract
     function copyContract() {
       const addr = document.getElementById('contractAddr').innerText;
       navigator.clipboard.writeText(addr).then(() => {
         alert('✅ Contract address copied to clipboard!');
       });
     }
+
+    // Mulai animasi api
+    animateFire();
   </script>
 
 </body>
